@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Car {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  MMY           String
+  licenceNumber String
+  rentRate      Float
+  fuelType      String
+  location      String
+  rating        Float
+  customerId    String?   @db.ObjectId
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  rents         Rent[]
+
+  @@index([licenceNumber])
+}
+
+model Admin {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  address String
+}
+
+model Customer {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  customerId String @unique
+  contact    String
+  dlImage    String
+  cars       Car[]
+  price      Float?
+  duration   Int?
+  rent       Rent[]
+}
+
+model Rent {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  startDate  DateTime @default(now())
+  endDate    DateTime
+  customerId String   @db.ObjectId
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  carId      String   @db.ObjectId
+  car        Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+}
+
+model Discount {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  discount   Float
+  discountId String @unique
+}
